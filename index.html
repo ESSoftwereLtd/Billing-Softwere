@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AK Builders - Online Billing System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- Professional Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#f4f7f6; color:#334155; min-height:100vh; font-family:'Inter', sans-serif;}
+  .hidden{display:none !important;}
+
+  /* Top Bar */
+  .top-bar{
+    background:linear-gradient(135deg, #064e3b, #047857);
+    color:#fff;padding:16px;border-radius:0 0 20px 20px;
+    box-shadow:0 6px 16px rgba(6,78,59,.3);
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;gap:12px;
+  }
+  .top-bar .icon-btn{
+    background:rgba(255,255,255,.15);border:none;color:#fff;
+    width:36px;height:36px;border-radius:10px;font-size:18px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;transition:.2s;
+  }
+  .top-bar .icon-btn:active{transform:scale(.9);}
+  .top-bar .title-wrap{flex:1;min-width:0;}
+  .top-bar h1{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .top-bar .sub{font-size:11px;opacity:.8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .top-bar .top-actions{display:flex;gap:6px;}
+  .top-bar .top-btn{
+    background:rgba(255,255,255,.15);border:none;color:#fff;
+    padding:6px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;
+    transition:.2s;white-space:nowrap;
+  }
+  .top-bar .top-btn:active{transform:scale(.95);}
+
+  /* Breadcrumb */
+  .breadcrumb{
+    padding:10px 16px;font-size:11px;color:#64748b;
+    background:#fff;border-bottom:1px solid #e2e8f0;
+    display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  }
+  .breadcrumb span{color:#047857;font-weight:600;}
+
+  .container{max-width:900px;margin:0 auto;padding:16px;padding-bottom:80px;}
+
+  /* Search Bar */
+  .search-bar{
+    background:#fff; padding:12px 16px; border-radius:12px; margin-bottom:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05); display:flex; align-items:center; gap:10px;
+  }
+  .search-bar input{
+    flex:1; border:none; outline:none; font-size:14px; background:transparent;
+    color:#334155; font-family:inherit;
+  }
+  .search-bar input::placeholder{color:#94a3b8;}
+  .search-bar button{
+    background:#047857; color:#fff; border:none; padding:8px 14px; border-radius:8px;
+    font-size:12px; font-weight:600; cursor:pointer;
+  }
+
+  /* UI Components */
+  .card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,.05);border:1px solid #e2e8f0;}
+  .card-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;color:#0f172a;}
+  .list-item{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid #047857;cursor:pointer;transition:.2s;box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center;}
+  .list-item:active{transform:scale(.98);}
+  .list-item.owner-item{border-left-color:#8b5cf6;}
+  .list-item.cat-item{border-left-color:#0891b2;}
+  .list-item .item-info{flex:1;min-width:0;}
+  .list-item h3{font-size:15px;margin-bottom:3px;color:#0f172a;}
+  .list-item .meta{font-size:11px;color:#64748b;}
+  .list-item .stats{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+  .list-item .stats span{font-size:10px;padding:3px 7px;border-radius:5px;font-weight:600;}
+  .s-total{background:#ecfdf5;color:#047857;}
+  .s-paid{background:#dcfce7;color:#166534;}
+  .s-due{background:#fee2e2;color:#991b1b;}
+  .s-count{background:#f3e8ff;color:#6d28d9;}
+  .list-item .arrow{font-size:22px;color:#94a3b8;margin-left:8px;}
+
+  .btn{padding:11px 16px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;}
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:#047857;color:#fff;}
+  .btn-success{background:#10b981;color:#fff;}
+  .btn-danger{background:#ef4444;color:#fff;}
+  .btn-owner{background:#8b5cf6;color:#fff;}
+  .btn-cat{background:#0891b2;color:#fff;}
+  .btn-outline{background:#fff;color:#0f172a;border:1.5px solid #e2e8f0;}
+  .btn-sm{padding:8px 12px;font-size:12px;width:auto;}
+
+  .form-group{margin-bottom:12px;}
+  .form-group label{display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;}
+  .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;background:#fff;transition:.2s;font-family:inherit;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#047857;box-shadow:0 0 0 3px rgba(4,120,87,.1);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:480px){.form-row{grid-template-columns:1fr;}}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+  .stat-card{background:#fff;border-radius:12px;padding:12px 8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+  .stat-card .label{font-size:10px;color:#64748b;margin-bottom:4px;}
+  .stat-card .value{font-size:15px;font-weight:800;}
+  .stat-card.total .value{color:#047857;}
+  .stat-card.paid .value{color:#10b981;}
+  .stat-card.due .value{color:#ef4444;}
+
+  .empty{text-align:center;padding:40px 20px;color:#64748b;}
+  .empty .icon{font-size:48px;margin-bottom:10px;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
+  .modal-overlay.show{display:flex;}
+  .modal{background:#fff;border-radius:18px;max-width:500px;width:100%;max-height:92vh;overflow-y:auto;padding:20px;animation:slideUp .3s ease; position:relative;}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .modal h2{font-size:17px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;color:#0f172a;}
+  .modal-close{background:#f1f5f9;border:none;width:30px;height:30px;border-radius:50%;font-size:18px;cursor:pointer;color:#64748b;line-height:1; display:flex; align-items:center; justify-content:center; transition:0.2s;}
+  .modal-close:hover { background: #fee2e2; color: #ef4444; }
+
+  /* Toast */
+  .toast{
+    position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px);
+    background:#0f172a; color:#fff; padding:12px 24px; border-radius:10px;
+    font-size:13px; font-weight:600; z-index:9999; transition:all .3s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
+    box-shadow:0 8px 20px rgba(0,0,0,.2); max-width:90%; text-align:center; pointer-events: none;
+  }
+  .toast.show{ transform:translateX(-50%) translateY(0); }
+  .toast.success{background:#10b981;}
+  .toast.error{background:#ef4444;}
+
+  .fab{position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg, #064e3b, #047857);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 8px 20px rgba(4,120,87,.4);z-index:99;display:flex;align-items:center;justify-content:center;transition:.2s;}
+  .fab:active{transform:scale(.9);}
+
+  /* Loading Screen */
+  #loadingScreen {
+    position: fixed; inset: 0; background: #064e3b; color: #fff; z-index: 99999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .spinner {
+    border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid #fff;
+    border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px;
+  }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  /* =====================================================
+     PREMIUM INVOICE TEMPLATE
+  ===================================================== */
+  .invoice-wrap{
+    font-size:13px;color:#1e293b;background:#fff;padding:45px;font-family:'Inter', sans-serif;
+    width: 100%; max-width: 850px; margin: 0 auto; border-radius: 8px; border: 1px solid #e2e8f0;
+    line-height: 1.5; position:relative;
+  }
+  
+  /* Decorative top border */
+  .invoice-wrap::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+    background: linear-gradient(90deg, #047857, #10b981, #34d399); border-radius: 8px 8px 0 0;
+  }
+
+  /* Header Layout (Left Logo, Right Info) */
+  .inv-top-header{
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #e2e8f0; padding-bottom: 25px; margin-bottom: 25px;
+  }
+  .inv-logo-area img{ max-height: 80px; max-width: 150px; object-fit: contain; }
+  .inv-company-info{ text-align: right; }
+  .inv-company-info h1{
+    font-size: 28px; font-family: 'Playfair Display', serif; font-weight: 900;
+    color: #dc2626; letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  .inv-company-info p{ font-size: 13px; color: #64748b; margin-bottom: 3px; }
+  .inv-company-info .email{ font-weight: 600; color: #047857; }
+
+  /* Details Layout */
+  .inv-details{ display: flex; justify-content: space-between; margin-bottom: 25px; }
+  .inv-bill-to h4{ font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 8px; font-weight: 700;}
+  .inv-bill-to p{ font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 3px; }
+  .inv-bill-to p.sub{ font-size: 12px; font-weight: 400; color: #64748b; }
+
+  .inv-meta{ text-align: right; }
+  .inv-meta h2{ font-size: 30px; font-family: 'Playfair Display', serif; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 12px; }
+  .inv-meta .meta-row{ display: flex; justify-content: flex-end; gap: 15px; font-size: 13px; margin-bottom: 5px; white-space: nowrap; }
+  .inv-meta .meta-row span:first-child{ color: #94a3b8; font-weight: 600; }
+  .inv-meta .meta-row span:last-child{ font-weight: 700; color: #0f172a; width: 120px; text-align: right; }
+
+  /* Subject Box Centered */
+  .inv-subject-wrapper{ text-align: center; margin-bottom: 25px; }
+  .inv-subject{
+    display: inline-block; background: #f8fafc; border: 1px solid #e2e8f0;
+    padding: 8px 20px; font-size: 14px; font-weight: 600; color: #334155;
+    border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,.02);
+  }
+
+  /* Table */
+  .inv-table{ width:100%; border-collapse:collapse; margin-bottom:25px; table-layout:fixed; }
+  .inv-table th{
+    background: #f8fafc; color: #475569; font-size:12px; padding:14px 10px;
+    text-align:left; text-transform:uppercase; letter-spacing: 0.5px; font-weight: 700;
+    border-bottom: 2px solid #cbd5e1;
+  }
+  .inv-table th:last-child, .inv-table td:last-child{ text-align:right; }
+  .inv-table th:nth-child(3), .inv-table td:nth-child(3),
+  .inv-table th:nth-child(4), .inv-table td:nth-child(4){ text-align:center; }
+  .inv-table td{ padding:14px 10px; border-bottom:1px solid #e2e8f0; font-size:13px; line-height: 1.6; color:#334155; word-wrap: break-word;}
+
+  /* Totals Area */
+  .inv-totals-area{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+  .payment-terms{ width: 50%; font-size: 12px; color: #64748b; line-height: 1.6; }
+  .payment-terms strong{ display: block; color: #0f172a; font-size: 13px; margin-bottom: 4px; }
+  
+  .totals-table{ width: 45%; border-collapse: collapse; }
+  .totals-table td{ padding: 10px 0; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+  .totals-table td:first-child{ color:#64748b; font-weight:600; }
+  .totals-table td:last-child{ text-align:right; font-weight:700; color:#0f172a; }
+  
+  .totals-table tr.grand-total td{
+    border-top: 2px solid #0f172a; border-bottom: 2px solid #0f172a;
+    padding: 12px 0; font-size: 18px; font-weight: 800; color: #047857;
+  }
+
+  .inv-in-words{ background: #f8fafc; border-radius: 6px; padding: 12px; text-align: center; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 40px; border: 1px dashed #cbd5e1;}
+
+  /* Footer Layout */
+  .inv-footer{ display: flex; justify-content: space-between; align-items: flex-end; padding-top: 20px; margin-top: 20px; }
+  .inv-footer .contact-info{ font-size: 12px; color: #64748b; line-height: 1.8; }
+  .inv-footer .contact-info strong{ color: #0f172a; font-size: 12px; }
+  .inv-footer .signature-area{ text-align: center; }
+  .inv-footer .signature-img{ max-height: 50px; margin-bottom: 5px; display: block; }
+  .inv-footer .signature-line{
+    border-top: 1.5px solid #0f172a; padding-top: 8px; font-size: 13px; font-weight: 700;
+    color: #0f172a; width: 200px; font-family: 'Playfair Display', serif;
+  }
+
+  /* =====================================================
+     PREMIUM RECEIPT TEMPLATE (A5 Sized)
+  ===================================================== */
+  .receipt-wrap{
+    font-size:12px;background:#fff;padding:35px; width:100%; max-width:600px; margin:0 auto; 
+    border:1px solid #e2e8f0; border-radius: 8px; line-height: 1.5; font-family: 'Inter', sans-serif;
+    position: relative;
+  }
+  .receipt-wrap::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+    background: linear-gradient(90deg, #047857, #10b981, #34d399); border-radius: 8px 8px 0 0;
+  }
+  .rc-header{text-align:center;border-bottom:1px solid #e2e8f0;padding-bottom:15px;margin-bottom:20px;}
+  .rc-header img{ max-height:60px; margin-bottom:10px; }
+  .rc-header h1{font-size:20px; font-family: 'Playfair Display', serif; font-weight:700; color:#dc2626; margin-bottom:4px;}
+  .rc-header h2{color:#047857;font-size:14px;margin-top:4px; letter-spacing:1.5px; text-transform: uppercase; font-weight:700;}
+  .rc-header p{font-size:12px;color:#64748b;margin-top:3px;}
+  
+  .rc-box{border:1px solid #e2e8f0; border-radius:8px;padding:15px;margin:15px 0;background:#f8fafc;}
+  .rc-row{display:flex;justify-content:space-between;padding:8px 0;font-size:12px;border-bottom:1px dashed #cbd5e1;}
+  .rc-row:last-child{border:none;}
+  .rc-row span{color:#64748b; font-weight:600;}
+  .rc-row b{color:#0f172a; font-size:13px;}
+  
+  .rc-amount{font-size:28px;color:#047857;font-weight:900;text-align:center;padding:15px;background:#ecfdf5;border:2px solid #a7f3d0;border-radius:8px;margin:15px 0; letter-spacing:1px;}
+  .rc-amount small{display:block;font-size:11px;font-weight:600;color:#047857;margin-bottom:4px; text-transform: uppercase; letter-spacing:1px;}
+  
+  .rc-words{text-align:center;font-size:12px;color:#334155;font-weight:600;margin-bottom:20px;}
+  .rc-footer{text-align:center;font-size:11px;color:#64748b;margin-top:15px;padding-top:15px;border-top:1px dashed #cbd5e1;}
+  
+  .rc-sign{display:flex;justify-content:space-between;width:100%;margin-top:40px;font-size:12px; font-weight:600;}
+  .rc-sign div{text-align:center;border-top:1px solid #0f172a;padding-top:6px;width:140px; font-family: 'Playfair Display', serif;}
+
+  /* =====================================================
+     STATEMENT TEMPLATE (Confirmation of Account)
+  ===================================================== */
+  .statement-wrap{
+    font-size:13px;background:#fff;padding:40px; width:100%; max-width:850px; margin:0 auto; 
+    border:1px solid #e2e8f0; border-radius: 8px; line-height: 1.5; font-family: 'Inter', sans-serif;
+    position: relative;
+  }
+  .st-header { text-align: center; border-bottom: 2px solid #047857; padding-bottom: 20px; margin-bottom: 20px; }
+  .st-header h1 { font-family: 'Playfair Display', serif; color: #dc2626; font-size: 24px; font-weight: 900; margin-bottom: 5px;}
+  .st-header h2 { color: #047857; font-size: 18px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .st-header p { font-size: 12px; color: #64748b; margin-top: 5px; }
+  
+  .st-info { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 13px; }
+  .st-info div strong { display: block; color: #64748b; font-size: 11px; margin-bottom: 2px; text-transform: uppercase;}
+  
+  .st-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  .st-table th { background: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 10px; text-align: left; font-size: 12px; color: #475569; text-transform: uppercase;}
+  .st-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+  .st-table th:last-child, .st-table td:last-child { text-align: right; }
+  
+  .st-summary { display: flex; justify-content: flex-end; margin-bottom: 30px; }
+  .st-summary table { width: 40%; border-collapse: collapse; }
+  .st-summary td { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid #e2e8f0; }
+  .st-summary td:last-child { text-align: right; font-weight: 700; }
+  .st-summary tr.grand td { background: #047857; color: #fff; font-weight: 800; font-size: 15px; border: none; }
+  
+  .st-sign { display: flex; justify-content: space-between; margin-top: 60px; }
+  .st-sign div { text-align: center; border-top: 1px solid #0f172a; padding-top: 5px; width: 180px; font-weight: 700; font-size: 13px; font-family: 'Playfair Display', serif;}
+
+  /* item builder */
+  .item-builder{ background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;margin-bottom:10px; }
+  .item-builder .remove-row{ background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-top:4px; }
+  .add-item-btn{ width:100%;padding:12px;background:#fff;border:2px dashed #047857;color:#047857;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:15px; }
+  .add-item-btn:active{transform:scale(.98);}
+
+  /* total box */
+  .total-box{ background:linear-gradient(135deg, #064e3b, #047857);color:#fff;border-radius:12px;padding:16px;margin:15px 0;text-align:center; box-shadow:0 4px 12px rgba(4,120,87,.3); }
+  .total-box .label{font-size:12px;opacity:.9;margin-bottom:6px; font-weight:600; letter-spacing:0.5px;}
+  .total-box .amount{font-size:28px;font-weight:900;}
+
+  /* category row */
+  .cat-row{ background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid #0891b2;box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center;gap:8px; }
+  .cat-row .cat-info{flex:1;cursor:pointer;min-width:0;}
+  .cat-row .cat-actions{display:flex;gap:4px;flex-shrink:0;}
+  .cat-row .cat-actions button{ width:30px;height:30px;border-radius:7px;border:none;font-size:14px;cursor:pointer;background:#f1f5f9;color:#64748b;transition:.2s; }
+  .cat-row .cat-actions button:active{transform:scale(.9);}
+  .cat-row .cat-actions .edit{background:#ecfdf5;color:#047857;}
+  .cat-row .cat-actions .del{background:#fee2e2;color:#991b1b;}
+
+  /* tab pills */
+  .tab-pills{ display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;padding:2px; }
+  .tab-pills::-webkit-scrollbar{display:none;}
+  .tab-pill{ padding:8px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;color:#64748b;white-space:nowrap;transition:.2s; }
+  .tab-pill.active{background:#047857;color:#fff;border-color:#047857;}
+
+  /* Search Result Card */
+  .search-result-card {
+    background: #fff; border: 2px solid #10b981; border-radius: 12px; padding: 20px; margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(16,185,129,.15); animation: slideUp .3s ease;
+  }
+  .search-result-card h3 { color: #047857; font-size: 18px; margin-bottom: 8px; }
+  .search-result-card p { font-size: 13px; color: #64748b; margin-bottom: 4px; }
+  .search-result-card .highlight { font-weight: 700; color: #0f172a; }
+  .search-result-card .btn { margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <h2>Connecting to Cloud...</h2>
+</div>
+
+<div class="top-bar hidden" id="topBar">
+  <button class="icon-btn hidden" id="backBtn" onclick="goBack()">←</button>
+  <button class="icon-btn" id="homeBtn" onclick="goHome()" title="Home">🏠</button>
+  <div class="title-wrap">
+    <h1 id="pageTitle">Billing System</h1>
+    <div class="sub" id="pageSub">Project Management</div>
+  </div>
+  <div class="top-actions" id="topActions"></div>
+</div>
+
+<div class="breadcrumb hidden" id="breadcrumb"></div>
+
+<div class="container" id="pageContent"></div>
+
+<button class="fab hidden" id="fab" onclick="fabAction()">+</button>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="pdfHolder" style="position:fixed;left:-9999px;top:0;"></div>
+<iframe id="pdfIframe" style="position:fixed;left:-9999px;top:0;width:900px;height:900px;border:none;"></iframe>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // ⚠️ এখানে আপনার Firebase কনফিগ বসান ⚠️
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY", // এখানে আপনার API Key দিন
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // এখানে আপনার Auth Domain দিন
+    projectId: "YOUR_PROJECT_ID", // এখানে আপনার Project ID দিন
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  
+  // Initialize Firestore with Offline Persistence (Multi-tab support)
+  const db = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+  });
+
+  window.auth = auth;
+  window.db = db;
+  window.signInWithPopup = signInWithPopup;
+  window.GoogleAuthProvider = GoogleAuthProvider;
+  window.onAuthStateChanged = onAuthStateChanged;
+  window.signOut = signOut;
+  window.firestore = { doc, setDoc, getDoc, onSnapshot };
+
+  // Auth State Listener
+  onAuthStateChanged(auth, (user) => {
+    const loading = document.getElementById('loadingScreen');
+    const topBar = document.getElementById('topBar');
+    
+    if (user) {
+      window.currentUser = user;
+      loading.classList.add('hidden');
+      topBar.classList.remove('hidden');
+      startApp();
+    } else {
+      window.currentUser = null;
+      loading.classList.add('hidden');
+      topBar.classList.add('hidden');
+      renderLoginScreen();
+    }
+  });
+
+  window.loginWithGoogle = () => {
+    signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
+      document.getElementById('toast').textContent = e.message;
+      document.getElementById('toast').className = 'toast show error';
+    });
+  };
+
+  window.logout = () => {
+    if(confirm('Are you sure you want to logout?')) {
+      signOut(auth);
+    }
+  };
+
+  // App Loading / Data Sync Logic
+  let unsubscribeSnapshot = null;
+
+  function startApp() {
+    const docRef = doc(db, "users", currentUser.uid, "data", "main");
+    
+    // Listen to changes in real-time
+    unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.projects) localStorage.setItem('ewb_projects', JSON.stringify(data.projects));
+        if (data.owners) localStorage.setItem('ewb_owners', JSON.stringify(data.owners));
+        if (data.invoices) localStorage.setItem('ewb_invoices', JSON.stringify(data.invoices));
+        if (data.payments) localStorage.setItem('ewb_payments', JSON.stringify(data.payments));
+        if (data.settings) localStorage.setItem('ewb_settings', JSON.stringify(data.settings));
+        if (data.categories) localStorage.setItem('ewb_categories', JSON.stringify(data.categories));
+      } else {
+        // First time user, no cloud data, default values will be set by app script
+      }
+      
+      // Once data is loaded, render the app
+      if (window.renderApp) window.renderApp();
+    }, (error) => {
+      console.error("Snapshot error:", error);
+    });
+  }
+
+  // Function to save data to firestore (Triggered by App)
+  window.saveToCloud = async (key, value) => {
+    if (!currentUser) return false;
+    try {
+      const docRef = doc(db, "users", currentUser.uid, "data", "main");
+      await setDoc(docRef, { [key]: value }, { merge: true });
+      return true;
+    } catch (e) {
+      console.error("Error saving to cloud", e);
+      return false;
+    }
+  };
+
+  // Login Screen Render
+  function renderLoginScreen() {
+    document.getElementById('pageContent').innerHTML = `
+      <div class="card" style="text-align:center; padding:40px 20px; margin-top: 50px;">
+        <h2 style="font-size:24px; font-weight:800; color:#0f172a; margin-bottom:10px;">AK Builders Ltd.</h2>
+        <p style="color:#64748b; margin-bottom:30px;">Sign in to sync your billing data securely online.</p>
+        <button class="btn btn-primary" onclick="loginWithGoogle()" style="background:#4285F4; font-size:16px; padding:14px;">
+          <svg style="width:20px;height:20px;margin-right:8px;" viewBox="0 0 48 48"><path fill="#FFF" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#FFF" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FFF" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FFF" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Sign in with Google
+        </button>
+      </div>
+    `;
+  }
+</script>
+
+<!-- App Logic -->
+<script>
+const DB = {
+  get(k){ return JSON.parse(localStorage.getItem('ewb_'+k) || '[]'); },
+  set(k,v){ 
+    localStorage.setItem('ewb_'+k, JSON.stringify(v)); 
+    if(window.saveToCloud) window.saveToCloud(k, v);
+  }
+};
+
+const DEFAULT_SETTINGS = {
+  companyName: 'AK Builders Ltd.',
+  address: '17/1, Abedkohh, Dhaka Cantonment-1206',
+  email: 'akbuildersltd2018@gmail.com',
+  phone: '01946487494',
+  contactEmail: 'engr.akbuildersltd@gmail.com',
+  signName: 'Engr. Sazun Khan',
+  terms: 'Please make the payment within 7 days.',
+  logo: '',
+  signatureImg: ''
+};
+
+if(!localStorage.getItem('ewb_settings')){ DB.set('settings', [DEFAULT_SETTINGS]); }
+function getSettings(){ const s = DB.get('settings'); return s.length > 0 ? s[0] : DEFAULT_SETTINGS; }
+
+const DEFAULT_CATEGORIES = [
+  { id:'door', name:'Door', icon:'🚪' }, { id:'tiles', name:'Tiles', icon:'🧱' },
+  { id:'electric', name:'Electric', icon:'⚡' }, { id:'sanitary', name:'Sanitary', icon:'🚿' },
+  { id:'ac', name:'AC Point', icon:'❄️' }, { id:'geyser', name:'Geyser', icon:'🔥' },
+  { id:'plumbing', name:'Plumbing', icon:'🔧' }, { id:'paint', name:'Paint', icon:'🎨' },
+  { id:'other', name:'Other', icon:'📦' }
+];
+
+if(!localStorage.getItem('ewb_cats_init')){
+  DB.set('categories', DEFAULT_CATEGORIES);
+  localStorage.setItem('ewb_cats_init','1');
+}
+
+function getCategories(){ return DB.get('categories'); }
+function getCategory(id){ return getCategories().find(c=>c.id===id); }
+
+const State = {
+  view: 'projects', projectId: null, ownerId: null, category: null,
+  invoiceId: null, receiptId: null, ownerTab: 'invoices', history: []
+};
+
+function toast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(()=>{ t.className = 'toast'; }, 3000);
+}
+
+function fmt(n){ return '৳ ' + Number(n||0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtDate(d){
+  if(!d) return '—';
+  return new Date(d).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+}
+function today(){ return new Date().toISOString().split('T')[0]; }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function esc(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function openModal(html){ document.getElementById('modalBody').innerHTML = html; document.getElementById('modal').classList.add('show'); }
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+
+function numberToWords(num){
+  num = Math.floor(Number(num)||0);
+  if(num === 0) return 'Zero Taka Only';
+  const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function twoDigit(n){ if(n<20) return ones[n]; const t = Math.floor(n/10), o = n%10; return tens[t] + (o?' '+ones[o]:''); }
+  function threeDigit(n){ const h = Math.floor(n/100), r = n%100; let s = ''; if(h) s += ones[h] + ' Hundred'; if(r) s += (s?' ':'') + twoDigit(r); return s; }
+  let result = '';
+  const crore = Math.floor(num/10000000); const lakh = Math.floor((num%10000000)/100000);
+  const thousand = Math.floor((num%100000)/1000); const rest = num%1000;
+  if(crore) result += threeDigit(crore) + ' Crore ';
+  if(lakh) result += threeDigit(lakh) + ' Lakh ';
+  if(thousand) result += threeDigit(thousand) + ' Thousand ';
+  if(rest) result += threeDigit(rest);
+  return result.trim() + ' Taka Only';
+}
+
+function setTopBar(title, sub, showBack, showFab, fabActionName, topActions){
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('pageSub').textContent = sub || '';
+  document.getElementById('backBtn').classList.toggle('hidden', !showBack);
+  const fab = document.getElementById('fab');
+  fab.classList.toggle('hidden', !showFab);
+  if(fabActionName) fab.dataset.action = fabActionName; else delete fab.dataset.action;
+  const ta = document.getElementById('topActions');
+  
+  let actionsHtml = '';
+  if(topActions && topActions.length){ 
+    actionsHtml = topActions.map(a=>`<button class="top-btn" onclick="${a.action}">${a.label}</button>`).join(''); 
+  }
+  // Always add logout button if logged in
+  if(window.currentUser) {
+    actionsHtml += `<button class="top-btn" style="background:#ef4444;" onclick="logout()">Logout</button>`;
+  }
+  ta.innerHTML = actionsHtml;
+}
+
+function setBreadcrumb(items){
+  const bc = document.getElementById('breadcrumb');
+  if(!items || items.length === 0){ bc.classList.add('hidden'); return; }
+  bc.classList.remove('hidden');
+  bc.innerHTML = items.map((it,i)=>{ const last = i === items.length - 1; return last ? `<span>${esc(it.label)}</span>` : `${esc(it.label)} ›`; }).join(' ');
+}
+
+function navigate(view, params){
+  if(State.view !== view){
+    State.history.push({ view: State.view, projectId: State.projectId, ownerId: State.ownerId, category: State.category, invoiceId: State.invoiceId, receiptId: State.receiptId, ownerTab: State.ownerTab });
+  }
+  State.view = view;
+  if(params){ for(const k in params){ if(k in State) State[k] = params[k]; } }
+  render();
+  window.scrollTo(0,0);
+}
+
+function goBack(){
+  if(State.history.length === 0){ State.view='projects'; render(); return; }
+  const prev = State.history.pop();
+  Object.assign(State, prev);
+  render();
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  State.history = [];
+  State.view = 'projects';
+  State.projectId = null;
+  State.ownerId = null;
+  render();
+  window.scrollTo(0,0);
+}
+
+window.renderApp = function() {
+  if(!window.currentUser) return;
+  render();
+};
+
+function render(){
+  if(!window.currentUser) return; // Don't render if not logged in
+  
+  if(State.view === 'projects') renderProjects();
+  else if(State.view === 'project') renderProject();
+  else if(State.view === 'owner') renderOwner();
+  else if(State.view === 'categories-manage') renderCategoriesManage();
+  else if(State.view === 'settings') renderSettings();
+  else if(State.view === 'category') renderCategory();
+  else if(State.view === 'invoice-new') renderInvoiceBuilder();
+  else if(State.view === 'invoice-view') renderInvoiceView();
+  else if(State.view === 'receipt-view') renderReceiptView();
+  else if(State.view === 'statement-view') renderStatementView();
+}
+
+function renderProjects(){
+  setTopBar('💼 ' + getSettings().companyName, 'Project Management', false, true, 'add-project', [{ label:'⚙️ Settings', action:"navigate('settings')" }]);
+  setBreadcrumb([]);
+  const projects = DB.get('projects');
+
+  let searchHtml = `
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Search Invoice or Receipt No..." onkeyup="if(event.key==='Enter') doSearch()">
+      <button onclick="doSearch()">Search</button>
+    </div>
+    <div id="searchResultContainer"></div>
+  `;
+
+  if(projects.length === 0){
+    document.getElementById('pageContent').innerHTML = searchHtml + `<div class="card"><div class="empty"><div class="icon">📁</div><p>No projects yet</p><small>Click + button to create a new project</small></div></div>`;
+    return;
+  }
+
+  document.getElementById('pageContent').innerHTML = searchHtml + `
+    <div class="card-title" style="padding:0 0 10px;">🏢 My Projects</div>
+    ${projects.map(p=>{
+      const owners = DB.get('owners').filter(o=>o.projectId===p.id);
+      const invs = DB.get('invoices').filter(i=>i.projectId===p.id);
+      const pays = DB.get('payments').filter(py=>py.projectId===p.id);
+      let total=0; invs.forEach(i=>{
+        let sub = i.items.reduce((s,it)=>s+Number(it.qty)*Number(it.rate),0);
+        total += (sub - (Number(i.discount)||0));
+      });
+      const paid = pays.reduce((s,x)=>s+Number(x.amount),0);
+      return `
+        <div class="list-item" onclick="navigate('project',{projectId:'${p.id}'})">
+          <div class="item-info">
+            <h3>🏢 ${esc(p.name)}</h3>
+            <div class="meta">${esc(p.address || 'No address')}</div>
+            <div class="stats">
+              <span class="s-count">👥 ${owners.length} Owners</span>
+              <span class="s-total">Total: ${fmt(total)}</span>
+              <span class="s-paid">Paid: ${fmt(paid)}</span>
+              <span class="s-due">Due: ${fmt(total-paid)}</span>
+            </div>
+          </div>
+          <div class="arrow">›</div>
+        </div>`;
+    }).join('')}
+  `;
+}
+
+function doSearch(){
+  const q = document.getElementById('searchInput').value.trim().toUpperCase();
+  if(!q) return;
+  
+  const invs = DB.get('invoices').filter(i => i.invoiceNo.toUpperCase().includes(q));
+  const pays = DB.get('payments').filter(p => p.receiptNo.toUpperCase().includes(q));
+  const container = document.getElementById('searchResultContainer');
+
+  if(invs.length > 0){
+    const inv = invs[0];
+    const p = DB.get('projects').find(x=>x.id===inv.projectId);
+    const o = DB.get('owners').find(x=>x.id===inv.ownerId);
+    let subTotal = inv.items.reduce((s,it)=>s+Number(it.qty)*Number(it.rate),0);
+    let due = subTotal - (Number(inv.discount)||0) - (Number(inv.paid)||0);
+
+    container.innerHTML = `
+      <div class="search-result-card">
+        <h3>🧾 Invoice Found: ${esc(inv.invoiceNo)}</h3>
+        <p>Project: <span class="highlight">${esc(p.name)}</span></p>
+        <p>Owner: <span class="highlight">${esc(o.name)}</span></p>
+        <p>Subject: <span class="highlight">${esc(inv.subject)}</span></p>
+        <p>Due Amount: <span class="highlight" style="color:#ef4444;">${fmt(due)}</span></p>
+        <button class="btn btn-primary" onclick="State.projectId='${p.id}';State.ownerId='${o.id}';State.category='${inv.category}';navigate('invoice-view',{invoiceId:'${inv.id}'})">View Details</button>
+      </div>
+    `;
+    return;
+  }
+
+  if(pays.length > 0){
+    const py = pays[0];
+    const p = DB.get('projects').find(x=>x.id===py.projectId);
+    const o = DB.get('owners').find(x=>x.id===py.ownerId);
+    const inv = DB.get('invoices').find(i=>i.id===py.invoiceId);
+
+    container.innerHTML = `
+      <div class="search-result-card" style="border-color:#8b5cf6; box-shadow: 0 4px 12px rgba(139,92,246,.15);">
+        <h3 style="color:#8b5cf6;">🧾 Receipt Found: ${esc(py.receiptNo)}</h3>
+        <p>Project: <span class="highlight">${esc(p.name)}</span></p>
+        <p>Owner: <span class="highlight">${esc(o.name)}</span></p>
+        ${inv ? `<p>Invoice: <span class="highlight">${esc(inv.invoiceNo)}</span></p>` : ''}
+        <p>Amount: <span class="highlight" style="color:#10b981;">${fmt(py.amount)}</span></p>
+        <button class="btn btn-primary" style="background:#8b5cf6;" onclick="State.projectId='${p.id}';State.ownerId='${o.id}';navigate('receipt-view',{receiptId:'${py.id}'})">View Details</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `<div class="card" style="color:#ef4444; font-weight:600; text-align:center;">No invoice or receipt found</div>`;
+}
+
+function renderProject(){
+  const p = DB.get('projects').find(x=>x.id===State.projectId);
+  if(!p){ State.view='projects'; render(); return; }
+
+  setTopBar('🏢 ' + p.name, 'Owner List', true, true, 'add-owner', [{ label:'✏️ Edit', action:'editProject()' }, { label:'📂 Category', action:"navigate('categories-manage')" }]);
+  setBreadcrumb([{label:'Projects'}, {label:p.name}]);
+
+  const owners = DB.get('owners').filter(o=>o.projectId===p.id);
+
+  if(owners.length === 0){
+    document.getElementById('pageContent').innerHTML = `<div class="card"><div class="empty"><div class="icon">👥</div><p>No owners in this project yet</p><small>Click + button to create an owner</small></div></div>`;
+    return;
+  }
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card-title" style="padding:0 0 10px;">👥 Owners (${owners.length})</div>
+    ${owners.map(o=>{
+      const invs = DB.get('invoices').filter(i=>i.ownerId===o.id);
+      const pays = DB.get('payments').filter(py=>py.ownerId===o.id);
+      let total=0; invs.forEach(i=>{
+        let sub = i.items.reduce((s,it)=>s+Number(it.qty)*Number(it.rate),0);
+        total += (sub - (Number(i.discount)||0));
+      });
+      const paid = pays.reduce((s,x)=>s+Number(x.amount),0);
+      return `
+        <div class="list-item owner-item" onclick="navigate('owner',{ownerId:'${o.id}',ownerTab:'invoices'})">
+          <div class="item-info">
+            <h3>👤 ${esc(o.name)}</h3>
+            <div class="meta">${o.phone?'📞 '+esc(o.phone):''} ${o.unit?' • 🏠 '+esc(o.unit):''}</div>
+            <div class="stats">
+              <span class="s-count">🧾 ${invs.length} Invoices</span>
+              <span class="s-total">Total: ${fmt(total)}</span>
+              <span class="s-paid">Paid: ${fmt(paid)}</span>
+              <span class="s-due">Due: ${fmt(total-paid)}</span>
+            </div>
+          </div>
+          <div class="arrow">›</div>
+        </div>`;
+    }).join('')}
+  `;
+}
+
+function renderOwner(){
+  const p = DB.get('projects').find(x=>x.id===State.projectId);
+  const o = DB.get('owners').find(x=>x.id===State.ownerId);
+  if(!p || !o){ State.view='project'; render(); return; }
+
+  setTopBar('👤 ' + o.name, 'Owner Details', true, false, null, [
+    { label:'✏️ Edit', action:'editOwner()' }, 
+    { label:'📂 Category', action:"navigate('categories-manage')" },
+    { label:'📄 Statement', action:"navigate('statement-view')" }
+  ]);
+  setBreadcrumb([{label:'Projects'}, {label:p.name}, {label:o.name}]);
+
+  const invs = DB.get('invoices').filter(i=>i.ownerId===o.id);
+  const pays = DB.get('payments').filter(py=>py.ownerId===o.id);
+  
+  let total=0; 
+  invs.forEach(i=>{
+    let sub = i.items.reduce((s,it)=>s+Number(it.qty)*Number(it.rate),0);
+    total += (sub - (Number(i.discount)||0));
+  });
+  
+  const paid = pays.reduce((s,x)=>s+Number(x.amount),0);
+
+  let body = '';
+  if(State.ownerTab === 'invoices'){
+    const cats = getCategories();
+    body = `
+      <div class="card-title" style="padding:0 0 10px;">📂 Categories</div>
+      ${cats.map(c=>{
+        const cInvs = invs.filter(i=>i.category===c.id);
+        let t=0; cInvs.forEach(i=>{
+          let sub = i.items.reduce((s,it)=>s+Number(it.qty)*Number(it.rate),0);
+          t += (sub - (Number(i.discount)||0));
+        });
+        return `
+          <div class="list-item cat-item" onclick="navigate('category',{category:'${c.id}'})">
+            <div class="item-info">
+              <h3>${c.icon} ${esc(c.name)}</h3>
+              <div class="meta">${cInvs.length} Invoices</div>
+              <div class="stats"><span class="s-total">Total: ${fmt(t)}</span></div>
+            </div>
+            <div class="arrow">›</div>
+          </div>`;
+      }).join('')}
+    `;
+  } else {
+    const sorted = [...pays].sort((a,b)=>b.createdAt-a.createdAt);
+    body = sorted.length === 0
+      ? `<div class="card"><div class="empty"><div class="icon">💵</div><p>No payments yet</p><small>Click + button to add a payment</small></div></div>`
+      : sorted.map(py=>{
+          const inv = DB.get('invoices').find(i=>i.id===py.invoiceId);
+          return `
+          <div class="pay-item-wrap" style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid #10b981;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+            <div class="pay-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+              <div>
+                <div style="font-size:12px;font-weight:700;color:#10b981;">${esc(py.receiptNo)}</div>
+                <div style="font-size:11px;color:#64748b;">${fmtDate(py.date)} • ${esc(py.method)}</div>
+              </div>
+              <div class="pay-amt" style="font-size:16px;font-weight:800;color:#10b981;">${fmt(py.amount)}</div>
+            </div>
+            <div style="font-size:11px;color:#64748b;margin-bottom:8px;">Invoice: ${inv ? inv.invoiceNo : 'General Payment'}</div>
+            <div class="pay-actions" style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button style="padding:6px 10px;border-radius:7px;border:none;font-size:11px;font-weight:600;cursor:pointer;background:#ecfdf5;color:#047857;" onclick="viewReceipt('${py.id}')">🧾 Receipt</button>
+              <button style="padding:6px 10px;border-radius:7px;border:none;font-size:11px;font-weight:600;cursor:pointer;background:#ecfdf5;color:#047857;" onclick="downloadReceiptPDFById('${py.id}')">📥 PDF</button>
+            </div>
+          </div>
+        `}).join('');
+  }
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card total"><div class="label">Total Bill</div><div class="value">${fmt(total)}</div></div>
+      <div class="stat-card paid"><div class="label">Paid</div><div class="value">${fmt(paid)}</div></div>
+      <div class="stat-card due"><div class="label">Due</div><div class="value">${fmt(total-paid)}</div></div>
+    </div>
+    <div class="tab-pills">
+      <div class="tab-pill ${State.ownerTab==='invoices'?'active':''}" onclick="switchOwnerTab('invoices')">🧾 Invoices (${invs.length})</div>
+      <div class="tab-pill ${State.ownerTab==='payments'?'active':''}" onclick="switchOwnerTab('payments')">💵 Payments (${pays.length})</div>
+    </div>
+    ${State.ownerTab === 'payments' ? `<button class="btn btn-success btn-block" style="margin-bottom:12px;" onclick="openGeneralPaymentModal()">+ Add Payment</button>` : ''}
+    ${body}
+  `;
+}
+
+function switchOwnerTab(tab){ State.ownerTab = tab; renderOwner(); window.scrollTo(0,0); }
+
+function renderCategory(){
+  const p = DB.get('projects').find(x=>x.id===State.projectId);
+  const o = DB.get('owners').find(x=>x.id===State.ownerId);
+  const c = getCategory(State.category);
+  if(!p || !o || !c){ State.view='owner'; render(); return; }
+
+  setTopBar(c.icon + ' ' + c.name, 'Invoice List', true, true, 'add-invoice');
+  setBreadcrumb([{label:p.name}, {label:o.name}, {label:c.name}]);
+
+  const invs = DB.get('invoices').filter(i => i.projectId===p.id && i.ownerId===o.id && i.category===c.id).sort((a,b)=>b.createdAt-a.createdAt);
+  let total=0; invs.forEach(i=>{
+    let sub = i.items.reduce((s,it)=>s+Number(it.qty)*Number(it.rate),0);
+    total += (sub - (Number(i.discount)||0));
+  });
+
+  let listHtml = '';
+  if(invs.length === 0){
+    listHtml = `<div class="card"><div class="empty"><div class="icon">🧾</div><p>No invoices in this category yet</p><small>Click + button to create a new invoice</small></div></div>`;
+  } else {
+    listHtml = invs.map(i=>{
+      let sub = i.items.reduce((s,it)=>s+Number(it.qty)*Number(it.rate),0);
+      let amt = sub - (Number(i.discount)||0);
+      return `
+        <div class="inv-item" style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid #047857;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+          <div class="inv-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+            <div>
+              <div class="inv-no" style="font-size:12px;font-weight:700;color:#047857;">${esc(i.invoiceNo)}</div>
+              <div class="inv-date" style="font-size:11px;color:#64748b;">${fmtDate(i.date)}</div>
+            </div>
+            <div class="inv-amt" style="font-size:15px;font-weight:800;color:#0f172a;">${fmt(amt)}</div>
+          </div>
+          <div class="inv-desc" style="font-size:11px;color:#64748b;margin-bottom:8px;">${i.items.length} Items</div>
+          <div class="inv-actions" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+            <button style="padding:6px 10px;border-radius:7px;border:none;font-size:11px;font-weight:600;cursor:pointer;background:#ecfdf5;color:#047857;" onclick="navigate('invoice-view',{invoiceId:'${i.id}'})">👁 View</button>
+            <button style="padding:6px 10px;border-radius:7px;border:none;font-size:11px;font-weight:600;cursor:pointer;background:#fee2e2;color:#991b1b;" onclick="openShareModal('${i.id}')">📤 Share</button>
+            <button style="padding:6px 10px;border-radius:7px;border:none;font-size:11px;font-weight:600;cursor:pointer;background:#f1f5f9;color:#64748b;" onclick="deleteInvoice('${i.id}')">🗑 Delete</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="stats-grid"><div class="stat-card total" style="grid-column:span 3;"><div class="label">Total Bill in this Category</div><div class="value">${fmt(total)}</div></div></div>
+    <div class="card-title" style="padding:0 0 10px;">🧾 Invoices (${invs.length})</div>
+    ${listHtml}
+  `;
+}
+
+let itemCounter = 0;
+function renderInvoiceBuilder(){
+  const p = DB.get('projects').find(x=>x.id===State.projectId);
+  const o = DB.get('owners').find(x=>x.id===State.ownerId);
+  const c = getCategory(State.category);
+  if(!p || !o || !c){ State.view='category'; render(); return; }
+
+  setTopBar('🧾 New Invoice', c.name + ' — ' + o.name, true, false);
+  setBreadcrumb([{label:p.name}, {label:o.name}, {label:c.name}, {label:'New'}]);
+  const invNo = 'INV-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-6);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>Invoice No (Auto)</label><input type="text" id="invNo" value="${invNo}" readonly style="background:#f8fafc;color:#64748b;"></div>
+        <div class="form-group"><label>Date</label><input type="date" id="invDate" value="${today()}"></div>
+      </div>
+      <div class="form-group"><label>Subject</label><input type="text" id="invSubject" value="Extra Tiles Bill" placeholder="e.g. Extra Tiles Bill"></div>
+    </div>
+    <div class="card-title" style="padding:0 0 10px;">📦 Add Items</div>
+    <div id="itemsList"></div>
+    <button class="add-item-btn" onclick="addItemRow()">+ Add New Item</button>
+    <div class="total-box"><div class="label">SUB TOTAL</div><div class="amount" id="liveTotal">৳ 0.00</div></div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>Discount (৳)</label><input type="number" id="invDiscount" placeholder="0" min="0" value="0"></div>
+        <div class="form-group"><label>Advance / Paid (৳)</label><input type="number" id="invPaid" placeholder="0" min="0" value="0"></div>
+      </div>
+      <div class="form-group"><label>Payment Terms</label><input type="text" id="invTerms" value="${esc(getSettings().terms)}"></div>
+    </div>
+    <button class="btn btn-primary" onclick="saveInvoice()" style="margin-bottom:10px;">✅ Save Invoice</button>
+    <button class="btn btn-outline" onclick="goBack()">Cancel</button>
+  `;
+
+  itemCounter = 0; addItemRow(); addItemRow(); updateTotal();
+}
+
+function addItemRow(){
+  itemCounter++;
+  const id = 'item_' + itemCounter;
+  const div = document.createElement('div');
+  div.className = 'item-builder'; div.id = id;
+  div.innerHTML = `
+    <div class="form-group" style="margin-bottom:8px;"><label>Description</label><input type="text" class="it-desc" placeholder="e.g. Boranda Tiles"></div>
+    <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="form-group" style="margin-bottom:0;"><label>Qty</label><input type="number" class="it-qty" placeholder="1" min="1" value="1" oninput="updateTotal()"></div>
+      <div class="form-group" style="margin-bottom:0;"><label>Unit</label><input type="text" class="it-unit" placeholder="Sft/Pcs" value="Sft"></div>
+      <div class="form-group" style="margin-bottom:0;"><label>Rate (৳)</label><input type="number" class="it-rate" placeholder="0" min="0" oninput="updateTotal()"></div>
+    </div>
+    <button class="remove-row" onclick="removeItemRow('${id}')">✕ Remove</button>
+  `;
+  document.getElementById('itemsList').appendChild(div);
+}
+function removeItemRow(id){ const el = document.getElementById(id); if(el) el.remove(); updateTotal(); }
+function updateTotal(){
+  let total = 0;
+  document.querySelectorAll('.item-builder').forEach(b=>{
+    total += (Number(b.querySelector('.it-qty').value)||0) * (Number(b.querySelector('.it-rate').value)||0);
+  });
+  const el = document.getElementById('liveTotal'); if(el) el.textContent = fmt(total);
+}
+
+function saveInvoice(){
+  const invNo = document.getElementById('invNo').value.trim();
+  const date = document.getElementById('invDate').value || today();
+  const subject = document.getElementById('invSubject').value.trim();
+  const discount = Number(document.getElementById('invDiscount').value) || 0;
+  const paid = Number(document.getElementById('invPaid').value) || 0;
+  const terms = document.getElementById('invTerms').value.trim();
+
+  const items = [];
+  document.querySelectorAll('.item-builder').forEach(b=>{
+    const desc = b.querySelector('.it-desc').value.trim();
+    const qty = Number(b.querySelector('.it-qty').value) || 0;
+    const unit = b.querySelector('.it-unit').value.trim() || 'Pcs';
+    const rate = Number(b.querySelector('.it-rate').value) || 0;
+    if(desc && qty > 0 && rate > 0) items.push({ desc, qty, unit, rate });
+  });
+
+  if(items.length === 0){ toast('Add at least one item','error'); return; }
+
+  const inv = { id: uid(), invoiceNo: invNo || ('INV-' + Date.now().toString().slice(-6)), projectId: State.projectId, ownerId: State.ownerId, category: State.category, date, subject, discount, paid, terms, items, createdAt: Date.now() };
+  const all = DB.get('invoices'); all.push(inv); DB.set('invoices', all);
+  toast('Invoice saved ✓','success');
+  navigate('invoice-view', {invoiceId: inv.id});
+}
+
+function renderInvoiceView(){
+  const p = DB.get('projects').find(x=>x.id===State.projectId);
+  const o = DB.get('owners').find(x=>x.id===State.ownerId);
+  const c = getCategory(State.category);
+  const inv = DB.get('invoices').find(i=>i.id===State.invoiceId);
+  if(!p || !o || !inv || !c){ State.view='category'; render(); return; }
+
+  setTopBar('🧾 ' + inv.invoiceNo, c.name + ' — ' + o.name, true, false);
+  setBreadcrumb([{label:p.name}, {label:o.name}, {label:c.name}, {label:inv.invoiceNo}]);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card" style="overflow-x:auto; padding:0;"><div style="padding:20px;">${buildInvoiceHTML(inv, p, o, c)}</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap; margin-bottom:10px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="downloadInvoicePDFById('${inv.id}', this)">📥 PDF</button>
+      <button class="btn btn-primary" style="flex:1; background:#3b82f6;" onclick="openShareModal('${inv.id}')">📤 Share</button>
+      <button class="btn btn-success" style="flex:1;" onclick="printInvoiceById('${inv.id}')">🖨️ Print</button>
+    </div>
+    <button class="btn btn-primary" style="background:#8b5cf6; margin-bottom:10px;" onclick="openPaymentForInvoiceModal('${inv.id}')">💵 Add Payment</button>
+    <button class="btn btn-outline" onclick="goBack()">← Back</button>
+  `;
+}
+
+function renderReceiptView(){
+  const py = DB.get('payments').find(x=>x.id===State.receiptId);
+  if(!py){ State.view='owner'; render(); return; }
+  const p = DB.get('projects').find(x=>x.id===py.projectId);
+  const o = DB.get('owners').find(x=>x.id===py.ownerId);
+  const inv = DB.get('invoices').find(i=>i.id===py.invoiceId);
+
+  setTopBar('🧾 ' + py.receiptNo, 'Money Receipt', true, false);
+  setBreadcrumb([{label:p.name}, {label:o.name}, {label:py.receiptNo}]);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card" style="padding:0;"><div style="padding:20px;">${buildReceiptHTML(py, p, o, inv)}</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" style="flex:1;" onclick="downloadReceiptPDFById('${py.id}', this)">📥 PDF</button>
+      <button class="btn btn-success" style="flex:1;" onclick="printReceiptById('${py.id}')">🖨️ Print</button>
+    </div>
+    <div style="margin-top:10px;"><button class="btn btn-outline" onclick="goBack()">← Back</button></div>
+  `;
+}
+
+function renderStatementView(){
+  const p = DB.get('projects').find(x=>x.id===State.projectId);
+  const o = DB.get('owners').find(x=>x.id===State.ownerId);
+  if(!p || !o){ State.view='owner'; render(); return; }
+
+  setTopBar('📄 Statement', 'Confirmation of Account', true, false);
+  setBreadcrumb([{label:p.name}, {label:o.name}, {label:'Statement'}]);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card" style="overflow-x:auto; padding:0;"><div style="padding:20px;">${buildStatementHTML(p, o)}</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap; margin-bottom:10px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="downloadStatementPDF('${p.id}', '${o.id}', this)">📥 Download PDF</button>
+      <button class="btn btn-success" style="flex:1;" onclick="printStatement('${p.id}', '${o.id}')">🖨️ Print</button>
+    </div>
+    <button class="btn btn-outline" onclick="goBack()">← Back</button>
+  `;
+}
+
+function buildInvoiceHTML(inv, p, o, c){
+  const s = getSettings();
+  let subTotal = inv.items.reduce((s,it)=>s+Number(it.qty)*Number(it.rate),0);
+  let discount = Number(inv.discount) || 0;
+  let paid = Number(inv.paid) || 0;
+  
+  let grandTotal = subTotal - discount;
+  if(grandTotal < 0) grandTotal = 0; 
+  
+  let due = grandTotal - paid;
+  if(due < 0) due = 0;
+
+  return `
+    <div class="invoice-wrap">
+      <div class="inv-top-header">
+        <div class="inv-logo-area">
+          ${s.logo ? `<img src="${s.logo}" alt="Logo">` : `<div style="font-size:30px;font-weight:bold;color:#047857;">LOGO</div>`}
+        </div>
+        <div class="inv-company-info">
+          <h1>${esc(s.companyName)}</h1>
+          <p>${esc(s.address)}</p>
+          <p class="email">Email: ${esc(s.email)}</p>
+        </div>
+      </div>
+
+      <div class="inv-details">
+        <div class="inv-bill-to">
+          <h4>BILL TO</h4>
+          <p>Mr. ${esc(o.name)}</p>
+          <p class="sub">${esc(o.unit || 'Unit Not Provided')}</p>
+          <p class="sub">${esc(o.address || 'Address Not Provided')}</p>
+        </div>
+        <div class="inv-meta">
+          <h2>INVOICE</h2>
+          <div class="meta-row"><span>Date</span><span>${fmtDate(inv.date)}</span></div>
+          <div class="meta-row"><span>Bill No.</span><span>${esc(inv.invoiceNo)}</span></div>
+        </div>
+      </div>
+
+      <div class="inv-subject-wrapper">
+        <div class="inv-subject">${esc(inv.subject || 'Extra Work Bill')}</div>
+      </div>
+
+      <table class="inv-table">
+        <thead>
+          <tr>
+            <th style="width:40px;">Sl.</th>
+            <th>DESCRIPTION</th>
+            <th style="width:60px;">Qty</th>
+            <th style="width:60px;">UNIT</th>
+            <th style="width:90px;">RATE</th>
+            <th style="width:100px;">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${inv.items.map((it,i)=>`
+            <tr>
+              <td style="text-align:center;">${i+1}</td>
+              <td>${esc(it.desc)}</td>
+              <td style="text-align:center;">${it.qty}</td>
+              <td style="text-align:center;">${esc(it.unit||'Pcs')}</td>
+              <td style="text-align:right;">${Number(it.rate).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+              <td style="text-align:right;">${(Number(it.qty)*Number(it.rate)).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div class="inv-totals-area">
+        <div class="payment-terms">
+          <strong>PAYMENT TERMS</strong>
+          <p>${esc(inv.terms || s.terms)}</p>
+        </div>
+        <table class="totals-table">
+          <tr><td>TOTAL</td><td>${subTotal.toLocaleString('en-IN',{minimumFractionDigits:2})} /=</td></tr>
+          <tr><td>DISCOUNT</td><td>- ${discount.toLocaleString('en-IN',{minimumFractionDigits:2})} /=</td></tr>
+          <tr><td>GRAND TOTAL</td><td>${grandTotal.toLocaleString('en-IN',{minimumFractionDigits:2})} /=</td></tr>
+          <tr><td>PAID</td><td>${paid.toLocaleString('en-IN',{minimumFractionDigits:2})} /=</td></tr>
+          <tr class="grand-total"><td>DUE</td><td>${due.toLocaleString('en-IN',{minimumFractionDigits:2})} /=</td></tr>
+        </table>
+      </div>
+
+      <div class="inv-in-words">
+        In Word: ${numberToWords(due)}
+      </div>
+
+      <div class="inv-footer">
+        <div class="contact-info">
+          <strong>If you have any Question about this invoice, Please Contact</strong><br>
+          Cell: ${esc(s.phone)}, Email: ${esc(s.contactEmail)}
+        </div>
+        <div class="signature-area">
+          ${s.signatureImg ? `<img src="${s.signatureImg}" class="signature-img" alt="Signature">` : ''}
+          <div class="signature-line">${esc(s.signName)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildReceiptHTML(py, p, o, inv){
+  const s = getSettings();
+  const amtInWords = numberToWords(py.amount);
+  return `
+    <div class="receipt-wrap">
+      <div class="rc-header">
+        ${s.logo ? `<img src="${s.logo}" alt="Logo">` : ''}
+        <h1>${esc(s.companyName)}</h1>
+        <h2>Money Receipt</h2>
+        <p>${esc(s.address)}</p>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#334155;margin-bottom:12px;">
+        <div><b>Receipt No:</b> ${esc(py.receiptNo)}</div>
+        <div><b>Date:</b> ${fmtDate(py.date)}</div>
+      </div>
+      <div class="rc-box">
+        <div class="rc-row"><span>Project</span><b>${esc(p.name)}</b></div>
+        <div class="rc-row"><span>Owner</span><b>${esc(o.name)}${o.unit?' ('+esc(o.unit)+')':''}</b></div>
+        ${inv ? `<div class="rc-row"><span>Invoice No</span><b>${esc(inv.invoiceNo)}</b></div>` : `<div class="rc-row"><span>Invoice No</span><b>General Payment</b></div>`}
+        <div class="rc-row"><span>Payment Method</span><b>${esc(py.method)}</b></div>
+        ${py.note?`<div class="rc-row"><span>Note</span><b>${esc(py.note)}</b></div>`:''}
+      </div>
+      <div class="rc-amount">
+        <small>Amount Received</small>
+        ${fmt(py.amount)}
+      </div>
+      <div class="rc-words">In Words: ${esc(amtInWords)}</div>
+      <div class="rc-footer">
+        This is a computer generated receipt. Thank you! 🙏
+      </div>
+      <div class="rc-sign">
+        <div>Client Signature</div>
+        <div style="border:none; padding-top:0;">
+            ${s.signatureImg ? `<img src="${s.signatureImg}" style="max-height:35px;margin-bottom:4px;">` : ''}
+            <div style="border-top:1.5px solid #0f172a; padding-top:6px;">${esc(s.signName)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildStatementHTML(p, o){
+  const s = getSettings();
+  const invs = DB.get('invoices').filter(i=>i.ownerId===o.id).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const pays = DB.get('payments').filter(py=>py.ownerId===o.id).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  
+  let totalBill = 0;
+  let totalPaid = 0;
+  let transactions = [];
+
+  invs.forEach(i => {
+    let sub = i.items.reduce((sum,it)=>sum+Number(it.qty)*Number(it.rate),0);
+    let amt = sub - (Number(i.discount)||0);
+    totalBill += amt;
+    transactions.push({ date: i.date, type: 'Invoice', ref: i.invoiceNo, desc: i.subject, debit: amt, credit: 0 });
+  });
+
+  pays.forEach(py => {
+    totalPaid += Number(py.amount);
+    let inv = DB.get('invoices').find(x=>x.id===py.invoiceId);
+    transactions.push({ date: py.date, type: 'Payment', ref: py.receiptNo, desc: inv ? inv.invoiceNo : 'General Payment', debit: 0, credit: Number(py.amount) });
+  });
+
+  transactions.sort((a,b) => new Date(a.date) - new Date(b.date));
+  let balance = 0;
+
+  return `
+    <div class="statement-wrap">
+      <div class="st-header">
+        ${s.logo ? `<img src="${s.logo}" style="max-height:60px;margin-bottom:10px;">` : ''}
+        <h1>${esc(s.companyName)}</h1>
+        <h2>Confirmation of Account</h2>
+        <p>${esc(s.address)}</p>
+      </div>
+
+      <div class="st-info">
+        <div>
+          <strong>Account Name</strong>
+          ${esc(o.name)}<br>
+          ${esc(o.unit || '')}<br>
+          ${esc(o.phone || '')}
+        </div>
+        <div style="text-align:right;">
+          <strong>Statement Date</strong>
+          ${fmtDate(today())}<br>
+          <strong>Project</strong>
+          ${esc(p.name)}
+        </div>
+      </div>
+
+      <table class="st-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Ref No.</th>
+            <th>Description</th>
+            <th>Debit</th>
+            <th>Credit</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${transactions.map(t => {
+            if(t.type === 'Invoice') balance += t.debit;
+            else balance -= t.credit;
+            return `
+              <tr>
+                <td>${fmtDate(t.date)}</td>
+                <td>${t.type}</td>
+                <td>${t.ref}</td>
+                <td>${t.desc}</td>
+                <td>${t.debit > 0 ? fmt(t.debit) : '-'}</td>
+                <td>${t.credit > 0 ? fmt(t.credit) : '-'}</td>
+                <td>${fmt(balance)}</td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+
+      <div class="st-summary">
+        <table>
+          <tr><td>Total Billed Amount</td><td>${fmt(totalBill)}</td></tr>
+          <tr><td>Total Paid Amount</td><td>${fmt(totalPaid)}</td></tr>
+          <tr class="grand"><td>Closing Balance</td><td>${fmt(totalBill - totalPaid)}</td></tr>
+        </table>
+      </div>
+
+      <div style="font-size:13px;color:#475569;margin-bottom:20px;">
+        <strong>In Words:</strong> ${numberToWords(totalBill - totalPaid)}
+      </div>
+
+      <div class="st-sign">
+        <div>Client Signature</div>
+        <div style="border:none;">
+          ${s.signatureImg ? `<img src="${s.signatureImg}" style="max-height:40px;margin-bottom:4px;">` : ''}
+          <div style="border-top:1px solid #0f172a; padding-top:5px;">${esc(s.signName)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function createPDFBlob(htmlContent, format) {
+  return new Promise((resolve, reject) => {
+    const iframe = document.getElementById('pdfIframe');
+    const doc = iframe.contentWindow.document;
+    
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html><html><head>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+      <style>${document.querySelector('style').innerHTML}</style>
+      </head><body style="background:#fff; margin:0;">${htmlContent}</body></html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      const element = doc.querySelector('.invoice-wrap') || doc.querySelector('.receipt-wrap') || doc.querySelector('.statement-wrap');
+      if(!element) return reject('Element not found');
+      
+      html2pdf().set({
+        margin: 0,
+        image:{type:'jpeg', quality:1},
+        html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false},
+        jsPDF:{unit:'mm', format:format, orientation:'portrait'}
+      }).from(element).outputPdf('blob').then(blob => {
+        resolve(blob);
+      }).catch(e => reject(e));
+    }, 500);
+  });
+}
+
+function downloadInvoicePDFById(id, btnEl){
+  const inv = DB.get('invoices').find(i=>i.id===id);
+  if(!inv){ toast('Not found','error'); return; }
+  const p = DB.get('projects').find(x=>x.id===inv.projectId);
+  const o = DB.get('owners').find(x=>x.id===inv.ownerId);
+  const c = getCategory(inv.category);
+
+  const originalText = btnEl.innerHTML;
+  btnEl.disabled = true; btnEl.innerHTML = '⏳ Loading...';
+
+  createPDFBlob(buildInvoiceHTML(inv, p, o, c), 'a4').then(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `Invoice_${inv.invoiceNo}.pdf`; a.click();
+    URL.revokeObjectURL(url);
+    toast('PDF Downloaded', 'success');
+    btnEl.disabled = false; btnEl.innerHTML = originalText;
+  }).catch(e => {
+    console.error(e); toast('Error generating PDF','error');
+    btnEl.disabled = false; btnEl.innerHTML = originalText;
+  });
+}
+
+function downloadReceiptPDFById(id, btnEl){
+  const py = DB.get('payments').find(x=>x.id===id);
+  if(!py){ toast('Not found','error'); return; }
+  const p = DB.get('projects').find(x=>x.id===py.projectId);
+  const o = DB.get('owners').find(x=>x.id===py.ownerId);
+  const inv = DB.get('invoices').find(i=>i.id===py.invoiceId);
+
+  const originalText = btnEl.innerHTML;
+  btnEl.disabled = true; btnEl.innerHTML = '⏳ Loading...';
+
+  createPDFBlob(buildReceiptHTML(py, p, o, inv), 'a5').then(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `Receipt_${py.receiptNo}.pdf`; a.click();
+    URL.revokeObjectURL(url);
+    toast('PDF Downloaded', 'success');
+    btnEl.disabled = false; btnEl.innerHTML = originalText;
+  }).catch(e => {
+    console.error(e); toast('Error generating PDF','error');
+    btnEl.disabled = false; btnEl.innerHTML = originalText;
+  });
+}
+
+function downloadStatementPDF(pId, oId, btnEl){
+  const p = DB.get('projects').find(x=>x.id===pId);
+  const o = DB.get('owners').find(x=>x.id===oId);
+
+  const originalText = btnEl.innerHTML;
+  btnEl.disabled = true; btnEl.innerHTML = '⏳ Loading...';
+
+  createPDFBlob(buildStatementHTML(p, o), 'a4').then(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `Statement_${o.name}.pdf`; a.click();
+    URL.revokeObjectURL(url);
+    toast('PDF Downloaded', 'success');
+    btnEl.disabled = false; btnEl.innerHTML = originalText;
+  }).catch(e => {
+    console.error(e); toast('Error generating PDF','error');
+    btnEl.disabled = false; btnEl.innerHTML = originalText;
+  });
+}
+
+function printInvoiceById(id){
+  const inv = DB.get('invoices').find(i=>i.id===id);
+  if(!inv) return;
+  const p = DB.get('projects').find(x=>x.id===inv.projectId);
+  const o = DB.get('owners').find(x=>x.id===inv.ownerId);
+  const c = getCategory(inv.category);
+  const w = window.open('','','width=900,height=900');
+  w.document.write(`<html><head><title>${esc(inv.invoiceNo)}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"><style>${document.querySelector('style').innerHTML}</style></head><body>${buildInvoiceHTML(inv,p,o,c)}</body></html>`);
+  w.document.close(); setTimeout(()=>w.print(), 500);
+}
+
+function printReceiptById(id){
+  const py = DB.get('payments').find(x=>x.id===id);
+  if(!py) return;
+  const p = DB.get('projects').find(x=>x.id===py.projectId);
+  const o = DB.get('owners').find(x=>x.id===py.ownerId);
+  const inv = DB.get('invoices').find(i=>i.id===py.invoiceId);
+  const w = window.open('','','width=800,height=900');
+  w.document.write(`<html><head><title>${esc(py.receiptNo)}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"><style>${document.querySelector('style').innerHTML}</style></head><body>${buildReceiptHTML(py,p,o,inv)}</body></html>`);
+  w.document.close(); setTimeout(()=>w.print(), 500);
+}
+
+function printStatement(pId, oId){
+  const p = DB.get('projects').find(x=>x.id===pId);
+  const o = DB.get('owners').find(x=>x.id===oId);
+  const w = window.open('','','width=900,height=900');
+  w.document.write(`<html><head><title>Statement</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"><style>${document.querySelector('style').innerHTML}</style></head><body>${buildStatementHTML(p,o)}</body></html>`);
+  w.document.close(); setTimeout(()=>w.print(), 500);
+}
+
+function viewReceipt(id){ navigate('receipt-view', {receiptId:id}); }
+
+function openShareModal(invId){
+  const inv = DB.get('invoices').find(i=>i.id===invId);
+  if(!inv) return;
+
+  openModal(`
+    <h2>📤 Share <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <p style="font-size:12px;color:#64748b;margin-bottom:12px;">Share via PDF file.</p>
+    <div class="form-group">
+      <label>File Name</label>
+      <input type="text" id="shareFileName" value="Invoice_${inv.invoiceNo}" placeholder="e.g. Invoice_123">
+    </div>
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button class="btn" style="background:#25D366; color:#fff; flex:1;" onclick="shareInvoicePDF('${invId}', this)">🟢 WhatsApp</button>
+      <button class="btn" style="background:#0ea5e9; color:#fff; flex:1;" onclick="shareInvoicePDF('${invId}', this)">✉️ Email</button>
+    </div>
+    <button class="btn btn-outline" onclick="closeModal()" style="margin-top:10px;">Cancel</button>
+  `);
+}
+
+function shareInvoicePDF(id, btnEl){
+  const fileName = document.getElementById('shareFileName').value.trim() || 'Invoice';
+  const inv = DB.get('invoices').find(i=>i.id===id);
+  if(!inv) return;
+  const p = DB.get('projects').find(x=>x.id===inv.projectId);
+  const o = DB.get('owners').find(x=>x.id===inv.ownerId);
+  const c = getCategory(inv.category);
+
+  const originalText = btnEl.innerHTML;
+  btnEl.disabled = true; btnEl.innerHTML = '⏳ Generating...';
+
+  createPDFBlob(buildInvoiceHTML(inv, p, o, c), 'a4').then(blob => {
+    const file = new File([blob], fileName + '.pdf', { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: fileName }).then(()=>closeModal());
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName + '.pdf'; a.click();
+      URL.revokeObjectURL(url);
+      toast('Sharing not supported. Downloaded instead.', 'success');
+      closeModal();
+    }
+    btnEl.disabled = false; btnEl.innerHTML = originalText;
+  }).catch(e => {
+    console.error(e); toast('Error generating PDF','error');
+    btnEl.disabled = false; btnEl.innerHTML = originalText;
+  });
+}
+
+function openPaymentForInvoiceModal(invId){
+  const inv = DB.get('invoices').find(i=>i.id===invId);
+  if(!inv) return;
+
+  openModal(`
+    <h2>Add Payment <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <div style="background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:12px;font-size:12px;">
+      Invoice: <b>${esc(inv.invoiceNo)}</b>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Amount *</label><input type="number" id="payAmount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>Date</label><input type="date" id="payDate" value="${today()}"></div>
+    </div>
+    <div class="form-group">
+      <label>Payment Method *</label>
+      <select id="payMethod">
+        <option value="Cash">💵 Cash</option><option value="bKash">📱 bKash</option><option value="Nagad">📱 Nagad</option><option value="Rocket">📱 Rocket</option><option value="Bank Transfer">🏦 Bank Transfer</option><option value="Cheque">📝 Cheque</option><option value="Other">📦 Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Note (Optional)</label><input type="text" id="payNote" placeholder="e.g. First installment"></div>
+    <button class="btn btn-success" onclick="savePayment('${invId}')">✅ Save Payment</button>
+  `);
+}
+
+function openGeneralPaymentModal(){
+  openModal(`
+    <h2>Add Payment <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <div style="background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:12px;font-size:12px;">
+      Type: <b>General Payment (Not linked to a specific invoice)</b>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Amount *</label><input type="number" id="payAmount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>Date</label><input type="date" id="payDate" value="${today()}"></div>
+    </div>
+    <div class="form-group">
+      <label>Payment Method *</label>
+      <select id="payMethod">
+        <option value="Cash">💵 Cash</option><option value="bKash">📱 bKash</option><option value="Nagad">📱 Nagad</option><option value="Rocket">📱 Rocket</option><option value="Bank Transfer">🏦 Bank Transfer</option><option value="Cheque">📝 Cheque</option><option value="Other">📦 Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Note (Optional)</label><input type="text" id="payNote" placeholder="e.g. Advance payment"></div>
+    <button class="btn btn-success" onclick="savePayment(null)">✅ Save Payment</button>
+  `);
+}
+
+function savePayment(invId){
+  const amount = Number(document.getElementById('payAmount').value) || 0;
+  const date = document.getElementById('payDate').value || today();
+  const method = document.getElementById('payMethod').value;
+  const note = document.getElementById('payNote').value.trim();
+  if(amount <= 0){ toast('Enter a valid amount','error'); return; }
+
+  const rcNo = 'RC-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-6);
+  const py = { id: uid(), receiptNo: rcNo, invoiceId: invId, projectId: State.projectId, ownerId: State.ownerId, amount, date, method, note, createdAt: Date.now() };
+  const all = DB.get('payments'); all.push(py); DB.set('payments', all);
+
+  if(invId){
+    const invs = DB.get('invoices');
+    const inv = invs.find(i=>i.id===invId);
+    if(inv){ inv.paid = (Number(inv.paid)||0) + amount; DB.set('invoices', invs); }
+  }
+
+  closeModal(); toast('Payment saved ✓','success');
+  if(invId){
+    setTimeout(()=>{ if(confirm('Payment saved! View receipt now?')){ viewReceipt(py.id); } }, 300);
+  } else {
+    renderOwner();
+  }
+}
+
+function deleteInvoice(id){
+  if(!confirm('Delete this invoice?')) return;
+  DB.set('invoices', DB.get('invoices').filter(i=>i.id!==id));
+  toast('Invoice deleted','success'); renderCategory();
+}
+
+function renderCategoriesManage(){
+  setTopBar('📂 Category Manage', 'Create / Edit / Delete', true, true, 'add-category');
+  setBreadcrumb([{label:'Category'}]);
+  const cats = getCategories();
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card-title" style="padding:0 0 10px;">📂 Category List (${cats.length})</div>
+    ${cats.map(c=>`
+      <div class="cat-row">
+        <div class="cat-info"><h3 style="font-size:15px;">${esc(c.icon)} ${esc(c.name)}</h3></div>
+        <div class="cat-actions">
+          <button class="edit" onclick="openEditCategoryModal('${c.id}')">✏️</button>
+          <button class="del" onclick="deleteCategory('${c.id}')">🗑</button>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function openAddCategoryModal(){
+  openModal(`
+    <h2>New Category <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Icon (Emoji)</label><input type="text" id="catIcon" placeholder="e.g. 🚪" value="📦" maxlength="4"></div>
+    <div class="form-group"><label>Category Name *</label><input type="text" id="catName" placeholder="e.g. Windows"></div>
+    <button class="btn btn-cat" onclick="saveNewCategory()">✅ Add</button>
+  `);
+}
+
+function saveNewCategory(){
+  const icon = document.getElementById('catIcon').value.trim() || '📦';
+  const name = document.getElementById('catName').value.trim();
+  if(!name){ toast('Enter category name','error'); return; }
+  const cats = getCategories(); cats.push({ id: 'cat_' + uid(), name, icon }); DB.set('categories', cats);
+  closeModal(); toast('Category created ✓','success'); renderCategoriesManage();
+}
+
+function openEditCategoryModal(id){
+  const c = getCategory(id); if(!c) return;
+  openModal(`
+    <h2>Edit Category <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Icon (Emoji)</label><input type="text" id="editCatIcon" value="${esc(c.icon)}" maxlength="4"></div>
+    <div class="form-group"><label>Name *</label><input type="text" id="editCatName" value="${esc(c.name)}"></div>
+    <button class="btn btn-cat" onclick="saveEditCategory('${id}')">✅ Save</button>
+  `);
+}
+
+function saveEditCategory(id){
+  const icon = document.getElementById('editCatIcon').value.trim() || '📦';
+  const name = document.getElementById('editCatName').value.trim();
+  if(!name){ toast('Enter category name','error'); return; }
+  const cats = getCategories(); const idx = cats.findIndex(c=>c.id===id);
+  if(idx >= 0){ cats[idx].icon = icon; cats[idx].name = name; }
+  DB.set('categories', cats); closeModal(); toast('Category updated ✓','success'); renderCategoriesManage();
+}
+
+function deleteCategory(id){
+  const invs = DB.get('invoices').filter(i=>i.category===id);
+  if(invs.length > 0){
+    if(!confirm(`There are ${invs.length} invoices in this category. All will be deleted. Continue?`)) return;
+    DB.set('invoices', DB.get('invoices').filter(i=>i.category!==id));
+  } else { if(!confirm('Delete this category?')) return; }
+  DB.set('categories', getCategories().filter(c=>c.id!==id)); toast('Category deleted','success'); renderCategoriesManage();
+}
+
+function renderSettings(){
+  setTopBar('⚙️ Company Settings', 'Update invoice information', true, false);
+  setBreadcrumb([{label:'Settings'}]);
+  const s = getSettings();
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="card-title">🏢 Company Info</div>
+      <div class="form-group"><label>Company Name</label><input type="text" id="setCompany" value="${esc(s.companyName)}"></div>
+      <div class="form-group"><label>Address</label><input type="text" id="setAddress" value="${esc(s.address)}"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Email (Header)</label><input type="email" id="setEmail" value="${esc(s.email)}"></div>
+        <div class="form-group"><label>Phone / WhatsApp</label><input type="text" id="setPhone" value="${esc(s.phone)}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email (Footer)</label><input type="email" id="setContactEmail" value="${esc(s.contactEmail)}"></div>
+        <div class="form-group"><label>Signatory Name</label><input type="text" id="setSignName" value="${esc(s.signName)}"></div>
+      </div>
+      <div class="form-group"><label>Default Payment Terms</label><input type="text" id="setTerms" value="${esc(s.terms)}"></div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">🖼️ Company Logo</div>
+      <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+        <div style="width:100px; height:100px; border:1px dashed #cbd5e1; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#f8fafc; overflow:hidden;">
+          ${s.logo ? `<img src="${s.logo}" style="max-width:100%; max-height:100%; object-fit:contain;">` : `<span style="font-size:12px; color:#94a3b8;">No Logo</span>`}
+        </div>
+        <div style="flex:1;">
+          <input type="file" id="logoUpload" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('logoUpload').click()">📁 Upload Logo</button>
+          ${s.logo ? `<button class="btn btn-danger btn-sm" style="margin-top:8px;" onclick="removeLogo()">🗑 Remove Logo</button>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✍️ Signature</div>
+      <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+        <div style="width:100px; height:100px; border:1px dashed #cbd5e1; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#f8fafc; overflow:hidden;">
+          ${s.signatureImg ? `<img src="${s.signatureImg}" style="max-width:100%; max-height:100%; object-fit:contain;">` : `<span style="font-size:12px; color:#94a3b8;">No Signature</span>`}
+        </div>
+        <div style="flex:1;">
+          <input type="file" id="signUpload" accept="image/*" style="display:none;" onchange="handleSignUpload(event)">
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('signUpload').click()">📁 Upload Signature</button>
+          ${s.signatureImg ? `<button class="btn btn-danger btn-sm" style="margin-top:8px;" onclick="removeSign()">🗑 Remove Signature</button>` : ''}
+        </div>
+      </div>
+    </div>
+    
+    <button class="btn btn-primary" onclick="saveSettings()">✅ Save Settings</button>
+  `;
+}
+
+function saveSettings(){
+  const s = {
+    companyName: document.getElementById('setCompany').value.trim(),
+    address: document.getElementById('setAddress').value.trim(),
+    email: document.getElementById('setEmail').value.trim(),
+    phone: document.getElementById('setPhone').value.trim(),
+    contactEmail: document.getElementById('setContactEmail').value.trim(),
+    signName: document.getElementById('setSignName').value.trim(),
+    terms: document.getElementById('setTerms').value.trim(),
+    logo: getSettings().logo,
+    signatureImg: getSettings().signatureImg
+  };
+  DB.set('settings', [s]); toast('Settings updated ✓','success'); goBack();
+}
+
+function handleLogoUpload(e){
+  const file = e.target.files[0]; if(!file) return;
+  if(file.size > 500000){ toast('Image must be under 500KB','error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    const s = getSettings(); s.logo = evt.target.result; DB.set('settings', [s]);
+    renderSettings(); toast('Logo uploaded ✓','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeLogo(){
+  if(!confirm('Remove logo?')) return;
+  const s = getSettings(); s.logo = ''; DB.set('settings', [s]);
+  renderSettings(); toast('Logo removed','success');
+}
+
+function handleSignUpload(e){
+  const file = e.target.files[0]; if(!file) return;
+  if(file.size > 500000){ toast('Image must be under 500KB','error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    const s = getSettings(); s.signatureImg = evt.target.result; DB.set('settings', [s]);
+    renderSettings(); toast('Signature uploaded ✓','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeSign(){
+  if(!confirm('Remove signature?')) return;
+  const s = getSettings(); s.signatureImg = ''; DB.set('settings', [s]);
+  renderSettings(); toast('Signature removed','success');
+}
+
+function editProject(){
+  const p = DB.get('projects').find(x=>x.id===State.projectId); if(!p) return;
+  openModal(`
+    <h2>Edit Project <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Project Name *</label><input type="text" id="epName" value="${esc(p.name)}"></div>
+    <div class="form-group"><label>Address</label><textarea id="epAddress" rows="2">${esc(p.address||'')}</textarea></div>
+    <button class="btn btn-primary" onclick="saveEditProject()">✅ Save</button>
+    <button class="btn btn-danger" style="margin-top:8px;" onclick="deleteProject()">🗑 Delete Project</button>
+  `);
+}
+
+function saveEditProject(){
+  const name = document.getElementById('epName').value.trim();
+  const address = document.getElementById('epAddress').value.trim();
+  if(!name){ toast('Enter name','error'); return; }
+  const projects = DB.get('projects'); const idx = projects.findIndex(x=>x.id===State.projectId);
+  if(idx >= 0){ projects[idx].name = name; projects[idx].address = address; }
+  DB.set('projects', projects); closeModal(); toast('Project updated ✓','success'); renderProject();
+}
+
+function deleteProject(){
+  if(!confirm('This will delete the entire project and all owners, invoices, and payments. Are you sure?')) return;
+  const pid = State.projectId;
+  DB.set('projects', DB.get('projects').filter(x=>x.id!==pid));
+  DB.set('owners', DB.get('owners').filter(x=>x.projectId!==pid));
+  DB.set('invoices', DB.get('invoices').filter(x=>x.projectId!==pid));
+  DB.set('payments', DB.get('payments').filter(x=>x.projectId!==pid));
+  closeModal(); toast('Project deleted','success'); State.view = 'projects'; State.projectId = null; render();
+}
+
+function editOwner(){
+  const o = DB.get('owners').find(x=>x.id===State.ownerId); if(!o) return;
+  openModal(`
+    <h2>Edit Owner <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Name *</label><input type="text" id="eoName" value="${esc(o.name)}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Mobile</label><input type="tel" id="eoPhone" value="${esc(o.phone||'')}"></div>
+      <div class="form-group"><label>Unit</label><input type="text" id="eoUnit" value="${esc(o.unit||'')}"></div>
+    </div>
+    <div class="form-group"><label>Address</label><textarea id="eoAddress" rows="2">${esc(o.address||'')}</textarea></div>
+    <button class="btn btn-owner" onclick="saveEditOwner()">✅ Save</button>
+    <button class="btn btn-danger" style="margin-top:8px;" onclick="deleteOwner()">🗑 Delete Owner</button>
+  `);
+}
+
+function saveEditOwner(){
+  const name = document.getElementById('eoName').value.trim();
+  const phone = document.getElementById('eoPhone').value.trim();
+  const unit = document.getElementById('eoUnit').value.trim();
+  const address = document.getElementById('eoAddress').value.trim();
+  if(!name){ toast('Enter name','error'); return; }
+  const owners = DB.get('owners'); const idx = owners.findIndex(x=>x.id===State.ownerId);
+  if(idx >= 0){ Object.assign(owners[idx], {name, phone, unit, address}); }
+  DB.set('owners', owners); closeModal(); toast('Owner updated ✓','success'); renderOwner();
+}
+
+function deleteOwner(){
+  if(!confirm('This will delete this owner and all their invoices and payments. Are you sure?')) return;
+  const oid = State.ownerId;
+  DB.set('owners', DB.get('owners').filter(x=>x.id!==oid));
+  DB.set('invoices', DB.get('invoices').filter(x=>x.ownerId!==oid));
+  DB.set('payments', DB.get('payments').filter(x=>x.ownerId!==oid));
+  closeModal(); toast('Owner deleted','success'); State.view = 'project'; State.ownerId = null; render();
+}
+
+function fabAction(){
+  const a = document.getElementById('fab').dataset.action;
+  if(a === 'add-project') openAddProjectModal();
+  else if(a === 'add-owner') openAddOwnerModal();
+  else if(a === 'add-invoice') navigate('invoice-new');
+  else if(a === 'add-category') openAddCategoryModal();
+}
+
+function openAddProjectModal(){
+  openModal(`
+    <h2>New Project <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Project Name *</label><input type="text" id="npName" placeholder="e.g. Rahman Villa"></div>
+    <div class="form-group"><label>Address</label><textarea id="npAddress" rows="2" placeholder="Project address"></textarea></div>
+    <button class="btn btn-primary" onclick="saveNewProject()">✅ Save</button>
+  `);
+}
+
+function saveNewProject(){
+  const name = document.getElementById('npName').value.trim();
+  const address = document.getElementById('npAddress').value.trim();
+  if(!name){ toast('Enter project name','error'); return; }
+  const projects = DB.get('projects'); projects.push({ id: uid(), name, address, createdAt: Date.now() }); DB.set('projects', projects);
+  closeModal(); toast('Project created ✓','success'); renderProjects();
+}
+
+function openAddOwnerModal(){
+  openModal(`
+    <h2>New Owner <button class="modal-close" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Name *</label><input type="text" id="noName" placeholder="e.g. Mehedi Hasan"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Mobile</label><input type="tel" id="noPhone" placeholder="01XXXXXXXXX"></div>
+      <div class="form-group"><label>Unit / Flat</label><input type="text" id="noUnit" placeholder="A-4, 3rd Floor"></div>
+    </div>
+    <div class="form-group"><label>Address</label><textarea id="noAddress" rows="2" placeholder="Owner address"></textarea></div>
+    <button class="btn btn-owner" onclick="saveNewOwner()">✅ Save</button>
+  `);
+}
+
+function saveNewOwner(){
+  const name = document.getElementById('noName').value.trim();
+  const phone = document.getElementById('noPhone').value.trim();
+  const unit = document.getElementById('noUnit').value.trim();
+  const address = document.getElementById('noAddress').value.trim();
+  if(!name){ toast('Enter owner name','error'); return; }
+  const owners = DB.get('owners'); owners.push({ id: uid(), projectId: State.projectId, name, phone, unit, address, createdAt: Date.now() }); DB.set('owners', owners);
+  closeModal(); toast('Owner created ✓','success'); renderProject();
+}
+
+// Start App is defined inside the module above and triggers window.renderApp
+</script>
+</body>
+</html>
